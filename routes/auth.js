@@ -34,7 +34,38 @@ authRouter.post('/signUp', async(req, res) => {
         });
     }catch(error){
         console.error('Error during sign up', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        res.status(500).json({ message: 'Error during sign up' });
+    }
+})
+
+
+authRouter.post('/login', async(req,res) => {
+    try{
+        const {emailId, password} = req.body;
+
+        const user = await User.findOne({ emailId });
+        if(!user){
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const isPasswordValid = await user.validatePassword(password); // should use await 
+        if(isPasswordValid){
+            const token = await user.getJWT(); // getting JWT token from user model method
+            res.cookie("token", token, {
+                expires: new Date(Date.now() + 8 * 3000000),
+            });
+
+            res.json({
+                message: "Login Successful",
+                data: user,
+            });
+        }else{
+            throw new Error("Invalid credentials");
+        }
+
+    }catch(error){
+        console.error('Error during login', error);
+        res.status(500).json({ message: 'Error during login' });
     }
 })
 
