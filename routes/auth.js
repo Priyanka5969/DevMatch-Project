@@ -48,6 +48,7 @@ authRouter.post('/login', async(req,res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        console.log('user found', user);
         const isPasswordValid = await user.validatePassword(password); // should use await 
         if(isPasswordValid){
             const token = await user.getJWT(); // getting JWT token from user model method
